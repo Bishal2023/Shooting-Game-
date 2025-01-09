@@ -102,13 +102,71 @@
             }
         }
 
+        class Fire {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 10;
+                this.color = 'orange';
+                this.speed = 3;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            update() {
+                this.y += this.speed;
+            }
+        }
+
+        class Bird {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.width = 30;
+                this.height = 20;
+                this.color = 'yellow';
+                this.speed = 2;
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+
+            update() {
+                this.x += this.speed;
+                if (this.x > canvas.width) {
+                    this.x = -this.width;
+                }
+            }
+        }
+
         const shooter = new Shooter();
         const bullets = [];
         const targets = [];
+        const fires = [];
+        const birds = [];
 
         function spawnTarget() {
             const x = Math.random() * (canvas.width - 40);
             targets.push(new Target(x, 0));
+        }
+
+        function spawnFire() {
+            const x = Math.random() * canvas.width;
+            fires.push(new Fire(x, 0));
+        }
+
+        function spawnBird() {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height / 2;
+            birds.push(new Bird(x, y));
         }
 
         function updateGame() {
@@ -155,6 +213,23 @@
                     document.location.reload();
                 }
             });
+
+            // Draw and update fires
+            fires.forEach((fire, fIndex) => {
+                fire.update();
+                fire.draw();
+
+                // Remove fire if it goes off-screen
+                if (fire.y - fire.radius > canvas.height) {
+                    fires.splice(fIndex, 1);
+                }
+            });
+
+            // Draw and update birds
+            birds.forEach((bird) => {
+                bird.update();
+                bird.draw();
+            });
         }
 
         function gameLoop() {
@@ -174,8 +249,10 @@
             }
         });
 
-        // Spawn targets every 1.5 seconds
+        // Spawn targets, fires, and birds periodically
         setInterval(spawnTarget, 1500);
+        setInterval(spawnFire, 2000);
+        setInterval(spawnBird, 3000);
 
         gameLoop();
     </script>
